@@ -1,0 +1,13 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Delete{% endblock %}
+{% block content %}
+<div class="dash-top"><h1>Delete</h1></div>
+<div class="panel" style="max-width:640px">
+  <p class="fs-5">Delete <strong>{{ object }}</strong>?</p>
+  <p class="text-secondary">This cannot be undone. Records that are linked to bookings or payments cannot be deleted; cancel or deactivate them instead.</p>
+  <form method="post">{% csrf_token %}
+    <button class="btn btn-danger" type="submit">Yes, delete</button>
+    <a class="btn btn-outline-secondary" href="{{ list_url }}">Keep it</a>
+  </form>
+</div>
+{% endblock %}

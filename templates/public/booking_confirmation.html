@@ -1,0 +1,20 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% t "Booking reference" %} {{ booking.reference }}{% endblock %}
+{% block content %}
+<section class="section">
+  <div class="container" style="max-width:760px">
+    <h1 class="display mb-2" style="font-size:2.6rem">{% t "Thank you! Your booking has been received." %}</h1>
+    <hr class="gold-rule">
+    <p class="mb-2">{% t "Booking reference" %}</p>
+    <div class="ref-box mb-3">{{ booking.reference }}</div>
+    <p class="text-secondary">{% t "Keep this reference. You need it with your phone number to check your booking." %}</p>
+    {% include "public/_booking_summary.html" %}
+    <div class="d-flex gap-2 flex-wrap mt-4">
+      <a class="btn btn-navy" href="{% url 'core:home' %}">{% t "Home" %}</a>
+      <a class="btn btn-outline-secondary" href="{% url 'bookings:create' %}">{% t "Make another booking" %}</a>
+      <a class="btn btn-success" target="_blank" rel="noopener" href="https://wa.me/{{ site.whatsapp_digits }}?text={{ booking.reference|urlencode }}"><i class="fa-brands fa-whatsapp me-1"></i>{% t "Chat on WhatsApp" %}</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

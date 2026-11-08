@@ -1,0 +1,32 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% t "About Us" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% t "About Us" %}</h1></div></header>
+<section class="section">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <h2 class="section-title">{% t "Our story" %}</h2><hr class="gold-rule">
+        {% loc site "about" as about %}{{ about|linebreaks }}
+      </div>
+      <div class="col-lg-5">
+        <div class="room-img" style="aspect-ratio:4/3">{% if site.about_image %}<img src="{{ site.about_image.url }}" alt="{{ site.hotel_name }}">{% else %}<i class="fa-solid fa-hotel"></i>{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section section-gray">
+  <div class="container"><div class="row g-5">
+    <div class="col-md-6"><h2 class="section-title">{% t "Our mission" %}</h2><hr class="gold-rule">{% loc site "mission" as m %}<p>{{ m }}</p></div>
+    <div class="col-md-6"><h2 class="section-title">{% t "Our vision" %}</h2><hr class="gold-rule">{% loc site "vision" as v %}<p>{{ v }}</p></div>
+  </div></div>
+</section>
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">{% t "Our services" %}</h2><hr class="gold-rule">
+    <div class="row">{% for s in services %}<div class="col-md-6"><div class="service-item"><i class="fa-solid {{ s.icon }} ico"></i><div><h3>{% loc s "name" %}</h3>{% loc s "description" as d %}<p>{{ d }}</p></div></div></div>{% endfor %}</div>
+    <a href="{% url 'bookings:create' %}" class="btn btn-gold mt-3">{% t "Book now" %}</a>
+  </div>
+</section>
+{% endblock %}

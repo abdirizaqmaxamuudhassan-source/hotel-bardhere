@@ -1,0 +1,83 @@
+{% extends "dashboard/base.html" %}
+{% load hb_tags %}
+{% block title %}Analytics & reports{% endblock %}
+{% block content %}
+<div class="dash-top">
+  <h1>Analytics & reports</h1>
+  <div class="d-flex gap-2 align-items-center flex-wrap">
+    <select id="pdf-period" class="form-select" style="width:auto"><option value="monthly">Monthly revenue</option><option value="weekly">Weekly revenue</option><option value="daily">Daily revenue</option></select>
+    <a id="pdf-link" class="btn btn-gold" href="{% url 'dashboard:report_pdf' %}?period=monthly"><i class="fa-solid fa-file-pdf me-1"></i>Download PDF report</a>
+  </div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-xl-3"><div class="stat"><div class="label">Total revenue</div><div class="value">{% money report.revenue_total %}</div></div></div>
+  <div class="col-6 col-xl-3"><div class="stat"><div class="label">Revenue, 30 days</div><div class="value">{% money report.revenue_30d %}</div></div></div>
+  <div class="col-6 col-xl-3"><div class="stat"><div class="label">Occupancy, 30 days</div><div class="value">{{ report.occupancy_overall }}%</div></div></div>
+  <div class="col-6 col-xl-3"><div class="stat"><div class="label">Customers</div><div class="value">{{ report.customers.total }}</div><div class="sub">{{ report.customers.new_30d }} new in 30 days · {{ report.customers.repeat }} repeat</div></div></div>
+</div>
+
+<div class="panel">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+    <h2 class="mb-0">Revenue</h2>
+    <div class="btn-group" role="group" aria-label="Revenue period">
+      <button type="button" class="btn btn-sm btn-navy period" data-p="daily">Daily</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary period" data-p="weekly">Weekly</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary period" data-p="monthly">Monthly</button>
+    </div>
+  </div>
+  <canvas id="revChart" height="110"></canvas>
+  <p class="small text-secondary mt-2 mb-0">Revenue counts payments with status Completed, by payment date.</p>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4"><div class="panel"><h2>Bookings by status</h2><canvas id="statusChart"></canvas></div></div>
+  <div class="col-lg-4"><div class="panel"><h2>Most popular room types</h2><canvas id="popChart"></canvas></div></div>
+  <div class="col-lg-4"><div class="panel"><h2>Occupancy by room type (30 days)</h2><canvas id="occChart"></canvas></div></div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel"><h2>Payments by method</h2><canvas id="methodChart" height="160"></canvas></div></div>
+  <div class="col-lg-6"><div class="panel"><h2>Top customers</h2>
+    <table class="table table-hb"><thead><tr><th>Customer</th><th>Phone</th><th class="text-end">Bookings</th></tr></thead>
+    <tbody>{% for c in report.customers.top %}<tr><td>{{ c.name }}</td><td>{{ c.phone }}</td><td class="text-end">{{ c.bookings }}</td></tr>{% empty %}<tr><td colspan="3" class="text-center text-secondary py-4">No customers yet.</td></tr>{% endfor %}</tbody></table>
+  </div></div>
+</div>
+{{ report.revenue|json_script:"d-revenue" }}
+{{ report.statuses|json_script:"d-status" }}
+{{ report.popular|json_script:"d-pop" }}
+{{ report.occupancy|json_script:"d-occ" }}
+{{ report.by_method|json_script:"d-method" }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  var get = function (id) { return JSON.parse(document.getElementById(id).textContent); };
+  var NAVY = "#0B1F3A", GOLD = "#C9A24B", PALETTE = ["#0B1F3A", "#C9A24B", "#12305A", "#E9DDBA", "#5F6B7D"];
+  var revenue = get("d-revenue"), cur = "daily";
+  var rev = new Chart(document.getElementById("revChart"), {
+    type: "bar",
+    data: { labels: revenue.daily.labels, datasets: [{ label: "Revenue", data: revenue.daily.values, backgroundColor: GOLD }] },
+    options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+  });
+  document.querySelectorAll(".period").forEach(function (b) {
+    b.addEventListener("click", function () {
+      cur = b.dataset.p;
+      rev.data.labels = revenue[cur].labels; rev.data.datasets[0].data = revenue[cur].values; rev.update();
+      document.querySelectorAll(".period").forEach(function (x) { x.className = "btn btn-sm period " + (x === b ? "btn-navy" : "btn-outline-secondary"); });
+    });
+  });
+  var s = get("d-status");
+  new Chart(document.getElementById("statusChart"), { type: "doughnut", data: { labels: s.labels, datasets: [{ data: s.values, backgroundColor: ["#F59E0B", "#16A34A", "#DC2626"] }] } });
+  var p = get("d-pop");
+  new Chart(document.getElementById("popChart"), { type: "bar", data: { labels: p.labels, datasets: [{ label: "Bookings", data: p.values, backgroundColor: NAVY }] }, options: { indexAxis: "y", plugins: { legend: { display: false } } } });
+  var o = get("d-occ");
+  new Chart(document.getElementById("occChart"), { type: "bar", data: { labels: o.labels, datasets: [{ label: "Occupancy %", data: o.values, backgroundColor: GOLD }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } } });
+  var m = get("d-method");
+  new Chart(document.getElementById("methodChart"), { type: "bar", data: { labels: Object.keys(m), datasets: [{ label: "Amount", data: Object.values(m), backgroundColor: PALETTE }] }, options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } } });
+  var sel = document.getElementById("pdf-period"), link = document.getElementById("pdf-link");
+  sel.addEventListener("change", function () { link.href = link.href.split("?")[0] + "?period=" + sel.value; });
+})();
+</script>
+{% endblock %}

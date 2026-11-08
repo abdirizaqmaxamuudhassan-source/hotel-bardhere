@@ -1,0 +1,30 @@
+{% extends "dashboard/base.html" %}
+{% load hb_tags %}
+{% block title %}Invoice {{ booking.reference }}{% endblock %}
+{% block content %}
+<div class="no-print d-flex gap-2 mb-2">
+  <a class="btn btn-outline-secondary" href="{% url 'dashboard:booking_detail' booking.pk %}">Back</a>
+  <button class="btn btn-navy" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Print</button>
+  <a class="btn btn-gold" href="{% url 'dashboard:booking_invoice_pdf' booking.pk %}"><i class="fa-solid fa-file-pdf me-1"></i>Download PDF</a>
+</div>
+<div class="paper">
+  <div class="head">
+    <div><h1>{{ site.hotel_name }}</h1><div class="text-secondary small">{{ site.address_en }}<br>{{ site.phone }} · {{ site.email }}</div></div>
+    <div><div class="doc-title">INVOICE</div><div class="text-end">INV-{{ booking.reference }}</div></div>
+  </div>
+  <div class="row mb-4">
+    <div class="col-6"><strong>Billed to</strong><br>{{ booking.customer.full_name }}<br>{{ booking.customer.phone }}<br>{{ booking.customer.email }}</div>
+    <div class="col-6"><strong>Stay</strong><br>Booking {{ booking.reference }}<br>Room {{ booking.room.number }} ({{ booking.room.room_type.name_en }})<br>{{ booking.check_in|date:"d M Y" }} → {{ booking.check_out|date:"d M Y" }} · {{ booking.guests }} guest{{ booking.guests|pluralize }}</div>
+  </div>
+  <table class="table"><thead><tr><th>Description</th><th class="text-end">Nights</th><th class="text-end">Rate</th><th class="text-end">Amount</th></tr></thead>
+    <tbody><tr><td>{{ booking.room.room_type.name_en }} – Room {{ booking.room.number }}</td><td class="text-end">{{ booking.nights }}</td><td class="text-end">{% money booking.price_per_night %}</td><td class="text-end">{% money booking.total_price %}</td></tr></tbody></table>
+  {% if payments %}<table class="table table-sm"><thead><tr><th>Payment</th><th>Method</th><th>Reference</th><th class="text-end">Amount</th></tr></thead>
+    <tbody>{% for p in payments %}<tr><td>{{ p.receipt_number }} · {{ p.paid_at|date:"d M Y" }}</td><td>{{ p.get_method_display }}</td><td>{{ p.transaction_reference|default:"—" }}</td><td class="text-end">{% money p.amount %}</td></tr>{% endfor %}</tbody></table>{% endif %}
+  <table class="table table-borderless w-auto ms-auto">
+    <tr><td>Total</td><td class="text-end">{% money booking.total_price %}</td></tr>
+    <tr><td>Paid</td><td class="text-end">{% money booking.amount_paid %}</td></tr>
+    <tr><th>Balance due</th><th class="text-end">{% money booking.balance_due %}</th></tr>
+  </table>
+  <p class="text-secondary small mt-4 mb-0">{{ site.invoice_note }}</p>
+</div>
+{% endblock %}

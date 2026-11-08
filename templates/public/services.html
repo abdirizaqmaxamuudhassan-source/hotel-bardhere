@@ -1,0 +1,14 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% t "Services" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% t "Our services" %}</h1></div></header>
+<section class="section">
+  <div class="container">
+    <div class="row">
+      {% for s in services %}<div class="col-md-6"><div class="service-item"><i class="fa-solid {{ s.icon }} ico"></i><div><h3>{% loc s "name" %}</h3>{% loc s "description" as d %}<p>{{ d }}</p></div></div></div>
+      {% empty %}<div class="col-12"><div class="empty-note">{% t "Services coming soon." %}</div></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "public/base.html" %}
+{% load hb_tags static %}
+{% block title %}{% t "Booking" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% t "Reserve your room" %}</h1>
+  <p>{% t "Your booking will be Pending until the hotel confirms it." %}</p></div></header>
+<section class="section">
+  <div class="container">
+    <div class="row g-5">
+      <div class="col-lg-8">
+        <form method="post" id="booking-form" data-quote-url="{% url 'bookings:quote' %}" data-currency="{{ site.currency_symbol }}" novalidate>
+          {% csrf_token %}
+          {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+          {% if form.errors %}<div class="alert alert-danger">{% t "Please correct the errors below." %}</div>{% endif %}
+          <div class="row">
+            <div class="col-md-6">{% include "public/_field.html" with field=form.full_name %}</div>
+            <div class="col-md-6">{% include "public/_field.html" with field=form.phone %}</div>
+            <div class="col-md-6">{% include "public/_field.html" with field=form.email %}</div>
+            <div class="col-md-6">{% include "public/_field.html" with field=form.room_type %}</div>
+            <div class="col-md-4">{% include "public/_field.html" with field=form.check_in %}</div>
+            <div class="col-md-4">{% include "public/_field.html" with field=form.check_out %}</div>
+            <div class="col-md-4">{% include "public/_field.html" with field=form.guests %}</div>
+            <div class="col-12">{% include "public/_field.html" with field=form.special_requests %}</div>
+          </div>
+          <button class="btn btn-gold btn-lg" type="submit">{% t "Confirm booking" %}</button>
+          <p class="text-secondary small mt-3">{% t "Payment is made at the hotel or as agreed with reception." %}</p>
+        </form>
+      </div>
+      <div class="col-lg-4">
+        <aside class="quote-box" aria-live="polite">
+          <h3>{% t "Estimated total" %}</h3>
+          <div id="quote-result"><p class="mb-0">{% t "Select dates to see the price." %}</p></div>
+        </aside>
+        <p class="mt-3"><a href="{% url 'bookings:status' %}"><i class="fa-solid fa-magnifying-glass me-1"></i>{% t "Check your booking" %}</a></p>
+      </div>
+    </div>
+  </div>
+</section>
+<script type="application/json" id="quote-i18n">{"select": "{% t 'Select dates to see the price.' %}", "nights": "{% t 'Nights' %}", "rate": "{% t 'per night' %}", "total": "{% t 'Total price' %}", "avail": "{% t 'Available' %}", "full": "{% t 'Not available' %}"}</script>
+{% endblock %}
+{% block scripts %}<script src="{% static 'js/main.js' %}"></script>{% endblock %}

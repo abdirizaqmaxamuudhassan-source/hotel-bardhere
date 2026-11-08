@@ -1,0 +1,29 @@
+{% extends "dashboard/base.html" %}
+{% load hb_tags %}
+{% block title %}Receipt {{ payment.receipt_number }}{% endblock %}
+{% block content %}
+<div class="no-print d-flex gap-2 mb-2">
+  <a class="btn btn-outline-secondary" href="{% url 'dashboard:booking_detail' booking.pk %}">Back to booking</a>
+  <button class="btn btn-navy" onclick="window.print()"><i class="fa-solid fa-print me-1"></i>Print</button>
+  <a class="btn btn-gold" href="{% url 'dashboard:payment_receipt_pdf' payment.pk %}"><i class="fa-solid fa-file-pdf me-1"></i>Download PDF</a>
+</div>
+<div class="paper">
+  <div class="head">
+    <div><h1>{{ site.hotel_name }}</h1><div class="text-secondary small">{{ site.address_en }}<br>{{ site.phone }} · {{ site.email }}</div></div>
+    <div><div class="doc-title">RECEIPT</div><div class="text-end">{{ payment.receipt_number }}</div></div>
+  </div>
+  <table class="table">
+    <tr><th style="width:40%">Received from</th><td>{{ booking.customer.full_name }}</td></tr>
+    <tr><th>Booking</th><td>{{ booking.reference }} – Room {{ booking.room.number }}</td></tr>
+    <tr><th>Date</th><td>{{ payment.paid_at|date:"d M Y" }}</td></tr>
+    <tr><th>Method</th><td>{{ payment.get_method_display }}</td></tr>
+    <tr><th>Transaction reference</th><td>{{ payment.transaction_reference|default:"—" }}</td></tr>
+    <tr><th>Paying phone</th><td>{{ payment.payer_phone|default:"—" }}</td></tr>
+    <tr><th>Status</th><td>{{ payment.get_status_display }}</td></tr>
+    <tr><th>Amount</th><td class="fs-4"><strong>{% money payment.amount %}</strong></td></tr>
+    <tr><th>Booking balance after payment</th><td>{% money booking.balance_due %}</td></tr>
+  </table>
+  <p class="text-secondary small mb-1">Mobile money references are entered by staff from the customer's payment message and are not verified automatically by this system.</p>
+  {% if payment.received_by %}<p class="text-secondary small mb-0">Received by {{ payment.received_by.get_full_name|default:payment.received_by.username }}</p>{% endif %}
+</div>
+{% endblock %}

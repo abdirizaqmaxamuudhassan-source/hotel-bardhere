@@ -1,0 +1,19 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% t "Rooms & Suites" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% t "Rooms & Suites" %}</h1></div></header>
+<section class="section">
+  <div class="container">
+    <form method="get" class="row g-3 align-items-end mb-5">
+      <div class="col-6 col-md-3"><label class="form-label small fw-semibold" for="r-ci">{% t "Check-in" %}</label><input id="r-ci" type="date" name="check_in" class="form-control" value="{{ check_in|date:'Y-m-d' }}"></div>
+      <div class="col-6 col-md-3"><label class="form-label small fw-semibold" for="r-co">{% t "Check-out" %}</label><input id="r-co" type="date" name="check_out" class="form-control" value="{{ check_out|date:'Y-m-d' }}"></div>
+      <div class="col-12 col-md-3 d-grid"><button class="btn btn-navy">{% t "Check availability" %}</button></div>
+    </form>
+    <div class="row g-4">
+      {% for rt in room_types %}<div class="col-md-6 col-lg-4">{% include "public/_room_card.html" %}</div>
+      {% empty %}<div class="col-12"><div class="empty-note">{% t "No rooms have been published yet." %}</div></div>{% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

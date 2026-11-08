@@ -1,0 +1,50 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% loc rt "name" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% loc rt "name" %}</h1></div></header>
+<section class="section">
+  <div class="container">
+    <a href="{% url 'rooms:list' %}" class="d-inline-block mb-4"><i class="fa-solid fa-arrow-left me-1"></i>{% t "Back to rooms" %}</a>
+    <div class="row g-5">
+      <div class="col-lg-7">
+        <div class="room-img" style="aspect-ratio:16/10">{% if rt.main_image %}<img src="{{ rt.main_image.url }}" alt="{% loc rt 'name' %}">{% else %}<i class="fa-solid fa-bed"></i>{% endif %}</div>
+        {% if rt.images.all %}
+        <h3 class="mt-4">{% t "More photos" %}</h3>
+        <div class="row g-2">{% for img in rt.images.all %}<div class="col-4"><a href="{{ img.image.url }}" target="_blank" rel="noopener"><img class="img-fluid" src="{{ img.image.url }}" alt="{{ img.caption }}" loading="lazy"></a></div>{% endfor %}</div>
+        {% endif %}
+        {% loc rt "description" as d %}<div class="mt-4">{{ d|linebreaks }}</div>
+        {% loclines rt "facilities" as facs %}
+        {% if facs %}<h3 class="mt-4">{% t "Room facilities" %}</h3><ul class="facility-list">{% for f in facs %}<li><i class="fa-solid fa-check"></i>{{ f }}</li>{% endfor %}</ul>{% endif %}
+      </div>
+      <div class="col-lg-5">
+        <div class="panel">
+          <div class="price">{% money rt.price_per_night %} <small>/ {% t "per night" %}</small></div>
+          <div class="meta-row my-3">
+            <span><i class="fa-solid fa-user-group"></i>{% t "Capacity" %}: {{ rt.capacity }}</span>
+            {% if rt.bed_type %}<span><i class="fa-solid fa-bed"></i>{{ rt.bed_type }}</span>{% endif %}
+            {% if rt.size_sqm %}<span><i class="fa-solid fa-ruler-combined"></i>{{ rt.size_sqm }} m²</span>{% endif %}
+          </div>
+          <form method="get" class="row g-2 mb-3">
+            <div class="col-6"><label class="form-label small fw-semibold" for="d-ci">{% t "Check-in" %}</label><input id="d-ci" type="date" name="check_in" class="form-control" value="{{ check_in|date:'Y-m-d' }}" required></div>
+            <div class="col-6"><label class="form-label small fw-semibold" for="d-co">{% t "Check-out" %}</label><input id="d-co" type="date" name="check_out" class="form-control" value="{{ check_out|date:'Y-m-d' }}" required></div>
+            <div class="col-12 d-grid"><button class="btn btn-navy">{% t "Check these dates" %}</button></div>
+          </form>
+          {% if availability %}
+            {% if availability.free > 0 %}
+              <p><span class="avail-pill yes">{{ availability.free }} {% t "rooms available" %}</span></p>
+              <p class="mb-1">{{ availability.nights }} {% t "nights" %} &times; {% money rt.price_per_night %}</p>
+              <p class="price">{% money availability.total %}</p>
+              <a class="btn btn-gold w-100" href="{% url 'bookings:create' %}?room_type={{ rt.pk }}&check_in={{ check_in|date:'Y-m-d' }}&check_out={{ check_out|date:'Y-m-d' }}">{% t "Book this room" %}</a>
+            {% else %}
+              <p><span class="avail-pill no">{% t "Not available" %}</span></p><p class="text-secondary">{% t "No rooms available for these dates." %}</p>
+            {% endif %}
+          {% else %}
+            <a class="btn btn-gold w-100" href="{% url 'bookings:create' %}?room_type={{ rt.pk }}">{% t "Book this room" %}</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

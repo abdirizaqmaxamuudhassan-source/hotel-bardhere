@@ -1,0 +1,22 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block title %}{% t "Check your booking" %} – {{ site.hotel_name }}{% endblock %}
+{% block content %}
+<header class="page-head"><div class="container"><h1>{% t "Check your booking" %}</h1></div></header>
+<section class="section">
+  <div class="container" style="max-width:640px">
+    {% if booking %}
+      <p class="mb-1">{% t "Booking reference" %}</p><div class="ref-box">{{ booking.reference }}</div>
+      {% include "public/_booking_summary.html" %}
+    {% else %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% if form.non_field_errors %}<div class="alert alert-danger">{% t "No booking matches that reference and phone number." %}</div>{% endif %}
+      {% include "public/_field.html" with field=form.reference %}
+      {% include "public/_field.html" with field=form.phone %}
+      <button class="btn btn-gold">{% t "Look up booking" %}</button>
+    </form>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

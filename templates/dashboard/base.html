@@ -1,0 +1,54 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Dashboard{% endblock %} | {{ site.hotel_name }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <link href="{% static 'css/main.css' %}" rel="stylesheet">
+</head>
+<body class="dash">
+<aside class="dash-side" id="dash-side">
+  <a class="brand" href="{% url 'dashboard:home' %}">{{ site.hotel_name }}<small>Staff dashboard</small></a>
+  {% with p=request.resolver_match.url_name %}
+  {% if 'dashboard' in ACCESS %}<a class="item {% if p == 'home' %}on{% endif %}" href="{% url 'dashboard:home' %}"><i class="fa-solid fa-gauge"></i>Overview</a>{% endif %}
+  {% if 'bookings' in ACCESS or 'customers' in ACCESS or 'payments' in ACCESS %}<div class="group">Front desk</div>{% endif %}
+  {% if 'bookings' in ACCESS %}<a class="item {% if 'booking' in p %}on{% endif %}" href="{% url 'dashboard:booking_list' %}"><i class="fa-solid fa-calendar-check"></i>Reservations</a>{% endif %}
+  {% if 'customers' in ACCESS %}<a class="item {% if 'customer' in p %}on{% endif %}" href="{% url 'dashboard:customer_list' %}"><i class="fa-solid fa-address-book"></i>Customers</a>{% endif %}
+  {% if 'payments' in ACCESS %}<a class="item {% if 'payment' in p %}on{% endif %}" href="{% url 'dashboard:payment_list' %}"><i class="fa-solid fa-money-bill-wave"></i>Payments</a>{% endif %}
+  {% if 'rooms' in ACCESS %}<div class="group">Rooms</div>
+  <a class="item {% if 'roomtype' in p %}on{% endif %}" href="{% url 'dashboard:roomtype_list' %}"><i class="fa-solid fa-layer-group"></i>Room types & prices</a>
+  <a class="item {% if p == 'room_list' or p == 'room_add' or p == 'room_edit' or p == 'room_delete' %}on{% endif %}" href="{% url 'dashboard:room_list' %}"><i class="fa-solid fa-door-open"></i>Rooms</a>{% endif %}
+  {% if 'reports' in ACCESS %}<div class="group">Insights</div><a class="item {% if 'report' in p %}on{% endif %}" href="{% url 'dashboard:reports' %}"><i class="fa-solid fa-chart-line"></i>Analytics & reports</a>{% endif %}
+  {% if 'menu' in ACCESS or 'content' in ACCESS %}<div class="group">Website</div>{% endif %}
+  {% if 'menu' in ACCESS %}<a class="item {% if 'menu' in p %}on{% endif %}" href="{% url 'dashboard:menuitem_list' %}"><i class="fa-solid fa-utensils"></i>Restaurant menu</a>
+  <a class="item" href="{% url 'dashboard:menucat_list' %}"><i class="fa-solid fa-list"></i>Menu categories</a>{% endif %}
+  {% if 'content' in ACCESS %}
+  <a class="item {% if p == 'site_settings' %}on{% endif %}" href="{% url 'dashboard:site_settings' %}"><i class="fa-solid fa-sliders"></i>Site settings</a>
+  <a class="item {% if 'service' in p %}on{% endif %}" href="{% url 'dashboard:service_list' %}"><i class="fa-solid fa-concierge-bell"></i>Services</a>
+  <a class="item {% if 'gallery' in p %}on{% endif %}" href="{% url 'dashboard:gallery_list' %}"><i class="fa-solid fa-images"></i>Gallery</a>
+  <a class="item {% if 'message' in p %}on{% endif %}" href="{% url 'dashboard:message_list' %}"><i class="fa-solid fa-envelope"></i>Contact messages</a>{% endif %}
+  {% if 'employees' in ACCESS %}<div class="group">Administration</div><a class="item {% if 'employee' in p %}on{% endif %}" href="{% url 'dashboard:employee_list' %}"><i class="fa-solid fa-users-gear"></i>Employees</a>{% endif %}
+  {% endwith %}
+  <div class="group">Account</div>
+  <a class="item" href="{% url 'core:home' %}" target="_blank" rel="noopener"><i class="fa-solid fa-globe"></i>View website</a>
+  {% if user.is_superuser %}<a class="item" href="/admin/"><i class="fa-solid fa-screwdriver-wrench"></i>Django admin</a>{% endif %}
+  <form method="post" action="{% url 'dashboard:logout' %}" class="px-3 py-3">{% csrf_token %}
+    <div class="small mb-2" style="color:#9AA6BB">{{ user.get_full_name|default:user.username }}</div>
+    <button class="btn btn-sm btn-outline-gold w-100" type="submit"><i class="fa-solid fa-right-from-bracket me-1"></i>Log out</button>
+  </form>
+</aside>
+
+<main class="dash-main">
+  <div class="mb-3 no-print"><button class="btn btn-navy btn-sm dash-toggle" id="dash-toggle" type="button"><i class="fa-solid fa-bars"></i> Menu</button></div>
+  {% for m in messages %}<div class="alert alert-{{ m.tags }} alert-dismissible fade show no-print" role="alert">{{ m }}<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{% static 'js/main.js' %}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,27 @@
+{% extends "dashboard/base.html" %}
+{% load hb_tags %}
+{% block title %}{{ object.full_name }}{% endblock %}
+{% block content %}
+<div class="dash-top"><h1>{{ object.full_name }}</h1>
+  <div class="d-flex gap-2"><a class="btn btn-outline-secondary" href="{% url 'dashboard:customer_edit' object.pk %}">Edit</a>
+  {% if 'bookings' in ACCESS %}<a class="btn btn-gold" href="{% url 'dashboard:booking_add' %}?customer={{ object.pk }}">New reservation</a>{% endif %}</div></div>
+<div class="row g-3">
+  <div class="col-lg-4"><div class="panel">
+    <h2>Details</h2>
+    <p class="mb-1"><i class="fa-solid fa-phone me-2"></i>{{ object.phone }}</p>
+    {% if object.email %}<p class="mb-1"><i class="fa-solid fa-envelope me-2"></i>{{ object.email }}</p>{% endif %}
+    {% if object.id_number %}<p class="mb-1"><i class="fa-solid fa-id-card me-2"></i>{{ object.id_number }}</p>{% endif %}
+    {% if object.address %}<p class="mb-1"><i class="fa-solid fa-location-dot me-2"></i>{{ object.address }}</p>{% endif %}
+    {% if object.notes %}<p class="text-secondary mt-3 mb-0">{{ object.notes }}</p>{% endif %}
+    <hr><div class="stat"><div class="label">Total paid</div><div class="value">{% money spent %}</div></div>
+  </div></div>
+  <div class="col-lg-8"><div class="panel">
+    <h2>Booking history</h2>
+    <div class="table-responsive"><table class="table table-hb table-hover">
+      <thead><tr><th>Ref</th><th>Room</th><th>Dates</th><th>Total</th><th>Status</th></tr></thead>
+      <tbody>{% for b in bookings %}<tr><td>{% if 'bookings' in ACCESS %}<a href="{% url 'dashboard:booking_detail' b.pk %}">{{ b.reference }}</a>{% else %}{{ b.reference }}{% endif %}</td><td>{{ b.room.number }} – {{ b.room.room_type.name_en }}</td>
+        <td>{{ b.check_in|date:"d M Y" }} – {{ b.check_out|date:"d M Y" }}</td><td>{% money b.total_price %}</td><td><span class="st st-{{ b.status }}">{{ b.get_status_display }}</span></td></tr>
+      {% empty %}<tr><td colspan="5" class="text-center text-secondary py-4">No bookings yet.</td></tr>{% endfor %}</tbody></table></div>
+  </div></div>
+</div>
+{% endblock %}

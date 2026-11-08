@@ -1,0 +1,11 @@
+{% load hb_tags %}
+<table class="table mt-4">
+  <tr><th>{% t "Status" %}</th><td><span class="st st-{{ booking.status }}">{% if booking.status == 'pending' %}{% t "Pending" %}{% elif booking.status == 'confirmed' %}{% t "Confirmed" %}{% else %}{% t "Cancelled" %}{% endif %}</span></td></tr>
+  <tr><th>{% t "Room type" %}</th><td>{% loc booking.room.room_type "name" %}</td></tr>
+  <tr><th>{% t "Check-in" %}</th><td>{{ booking.check_in|date:"l, d F Y" }} ({{ site.check_in_time }})</td></tr>
+  <tr><th>{% t "Check-out" %}</th><td>{{ booking.check_out|date:"l, d F Y" }} ({{ site.check_out_time }})</td></tr>
+  <tr><th>{% t "Guests" %}</th><td>{{ booking.guests }}</td></tr>
+  <tr><th>{% t "Nights" %}</th><td>{{ booking.nights }}</td></tr>
+  <tr><th>{% t "Total price" %}</th><td><strong>{% money booking.total_price %}</strong></td></tr>
+  <tr><th>{% t "Payment" %}</th><td>{% if booking.payment_state == 'Paid' %}{% t "Paid" %}{% elif booking.payment_state == 'Partial' %}{% t "Partial" %}{% else %}{% t "Unpaid" %}{% endif %}</td></tr>
+</table>

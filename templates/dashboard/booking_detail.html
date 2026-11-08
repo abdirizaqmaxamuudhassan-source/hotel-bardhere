@@ -1,0 +1,63 @@
+{% extends "dashboard/base.html" %}
+{% load hb_tags %}
+{% block title %}Booking {{ object.reference }}{% endblock %}
+{% block content %}
+{% with b=object %}
+<div class="dash-top">
+  <div><h1>{{ b.reference }}</h1>
+    <span class="st st-{{ b.status }}">{{ b.get_status_display }}</span>
+    <span class="st st-{{ b.payment_state|lower }}">{{ b.payment_state }}</span></div>
+  <div class="d-flex gap-2 flex-wrap">
+    <a class="btn btn-outline-secondary" href="{% url 'dashboard:booking_edit' b.pk %}"><i class="fa-solid fa-pen me-1"></i>Edit</a>
+    <a class="btn btn-navy" href="{% url 'dashboard:booking_invoice' b.pk %}"><i class="fa-solid fa-file-invoice me-1"></i>Invoice</a>
+    <a class="btn btn-navy" href="{% url 'dashboard:booking_invoice_pdf' b.pk %}"><i class="fa-solid fa-file-pdf me-1"></i>Invoice PDF</a>
+    {% if 'payments' in ACCESS %}<a class="btn btn-gold" href="{% url 'dashboard:payment_add' %}?booking={{ b.pk }}"><i class="fa-solid fa-money-bill me-1"></i>Record payment</a>{% endif %}
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6"><div class="panel">
+    <h2>Stay</h2>
+    <table class="table table-sm mb-0">
+      <tr><th>Room</th><td>{{ b.room.number }} – {{ b.room.room_type.name_en }}</td></tr>
+      <tr><th>Check-in</th><td>{{ b.check_in|date:"D, d M Y" }}</td></tr>
+      <tr><th>Check-out</th><td>{{ b.check_out|date:"D, d M Y" }}</td></tr>
+      <tr><th>Nights</th><td>{{ b.nights }}</td></tr>
+      <tr><th>Guests</th><td>{{ b.guests }}</td></tr>
+      <tr><th>Rate / night</th><td>{% money b.price_per_night %}</td></tr>
+      <tr><th>Total</th><td><strong>{% money b.total_price %}</strong></td></tr>
+      <tr><th>Paid</th><td>{% money b.amount_paid %}</td></tr>
+      <tr><th>Balance due</th><td><strong>{% money b.balance_due %}</strong></td></tr>
+      <tr><th>Source</th><td>{{ b.get_source_display }}</td></tr>
+      <tr><th>Created</th><td>{{ b.created_at|date:"d M Y H:i" }}</td></tr>
+      {% if b.special_requests %}<tr><th>Requests</th><td>{{ b.special_requests }}</td></tr>{% endif %}
+    </table>
+  </div></div>
+  <div class="col-lg-6">
+    <div class="panel">
+      <h2>Guest</h2>
+      <p class="mb-1"><a href="{% url 'dashboard:customer_detail' b.customer.pk %}">{{ b.customer.full_name }}</a></p>
+      <p class="mb-1"><i class="fa-solid fa-phone me-2"></i>{{ b.customer.phone }}</p>
+      {% if b.customer.email %}<p class="mb-0"><i class="fa-solid fa-envelope me-2"></i>{{ b.customer.email }}</p>{% endif %}
+    </div>
+    <div class="panel">
+      <h2>Change status</h2>
+      <form method="post" action="{% url 'dashboard:booking_status' b.pk %}" class="d-flex gap-2 flex-wrap">{% csrf_token %}
+        {% if b.status != 'confirmed' %}<button class="btn btn-success" name="status" value="confirmed">Confirm</button>{% endif %}
+        {% if b.status != 'pending' %}<button class="btn btn-warning" name="status" value="pending">Mark pending</button>{% endif %}
+        {% if b.status != 'cancelled' %}<button class="btn btn-danger" name="status" value="cancelled" data-confirm="Cancel this booking? The room becomes available again.">Cancel booking</button>{% endif %}
+      </form>
+      <p class="small text-secondary mt-2 mb-0">Re-confirming a cancelled booking re-checks that the room is still free.</p>
+    </div>
+  </div>
+</div>
+<div class="panel">
+  <h2>Payments</h2>
+  <div class="table-responsive"><table class="table table-hb">
+    <thead><tr><th>Receipt</th><th>Date</th><th>Method</th><th>Reference</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+    <tbody>{% for p in payments %}<tr><td>{{ p.receipt_number }}</td><td>{{ p.paid_at|date:"d M Y" }}</td><td>{{ p.get_method_display }}</td><td>{{ p.transaction_reference|default:"—" }}</td><td>{% money p.amount %}</td>
+      <td><span class="st st-{{ p.status }}">{{ p.get_status_display }}</span></td>
+      <td class="text-end"><a class="btn btn-sm btn-outline-secondary" href="{% url 'dashboard:payment_receipt' p.pk %}">Receipt</a></td></tr>
+    {% empty %}<tr><td colspan="7" class="text-center text-secondary py-4">No payments recorded yet.</td></tr>{% endfor %}</tbody></table></div>
+</div>
+{% endwith %}
+{% endblock %}

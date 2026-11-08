@@ -1,0 +1,40 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ heading }}{% endblock %}
+{% block content %}
+<div class="dash-top"><h1>{{ heading }}</h1><a class="btn btn-outline-secondary" href="{{ list_url }}">Back</a></div>
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  <div class="panel">
+    {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+    <div class="row">
+      {% for field in form %}
+        <div class="{% if field.field.widget.input_type == 'checkbox' %}col-12{% else %}col-md-6{% endif %} mb-3">
+          {% if field.field.widget.input_type == 'checkbox' %}
+            <div class="form-check">{{ field }}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label></div>
+          {% else %}
+            <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}</label>{{ field }}
+          {% endif %}
+          {% for e in field.errors %}<div class="text-danger small mt-1">{{ e }}</div>{% endfor %}
+          {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="panel">
+    <h2>Extra photos</h2>
+    <p class="text-secondary">Upload more photos for the room details page. Tick “Delete” to remove a photo.</p>
+    {{ formset.management_form }}
+    {% for f in formset %}
+      <div class="row g-2 align-items-center border-bottom py-2">
+        {{ f.id }}
+        <div class="col-auto">{% if f.instance.pk and f.instance.image %}<img class="thumb" src="{{ f.instance.image.url }}" alt="">{% endif %}</div>
+        <div class="col-md-5">{{ f.image }}{% for e in f.image.errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}</div>
+        <div class="col-md-4">{{ f.caption }}</div>
+        {% if f.instance.pk %}<div class="col-auto form-check"><input class="form-check-input" type="checkbox" name="{{ f.prefix }}-DELETE" id="{{ f.prefix }}-del"><label class="form-check-label" for="{{ f.prefix }}-del">Delete</label></div>{% endif %}
+      </div>
+    {% endfor %}
+  </div>
+  <button class="btn btn-gold" type="submit"><i class="fa-solid fa-floppy-disk me-1"></i>Save room type</button>
+  <a class="btn btn-outline-secondary" href="{{ list_url }}">Cancel</a>
+</form>
+{% endblock %}

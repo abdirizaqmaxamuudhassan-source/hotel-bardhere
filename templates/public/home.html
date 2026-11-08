@@ -1,0 +1,103 @@
+{% extends "public/base.html" %}
+{% load hb_tags %}
+{% block content %}
+<section class="hero"{% if site.hero_image %} style="background-image:url('{{ site.hero_image.url }}')"{% endif %}>
+  <div class="container py-5">
+    <div class="hero-in">
+      <p class="mb-1" style="color:var(--gold);font-weight:600">{% t "Welcome to" %}</p>
+      <h1>{{ site.hotel_name }}</h1>
+      <div class="hero-rule"></div>
+      <p class="lead">{% loc site "tagline" %}</p>
+      <div class="d-flex gap-2 flex-wrap mt-4">
+        <a href="{% url 'bookings:create' %}" class="btn btn-gold btn-lg">{% t "Book now" %}</a>
+        <a href="{% url 'rooms:list' %}" class="btn btn-outline-gold btn-lg">{% t "Rooms & Suites" %}</a>
+      </div>
+      <p class="mt-4 mb-0 small" style="color:#C9D1E0"><i class="fa-solid fa-location-dot me-2"></i>{% loc site "address" %}</p>
+    </div>
+  </div>
+</section>
+
+<div class="container avail-wrap">
+  <form class="avail-bar" method="get" action="{% url 'bookings:create' %}">
+    <div class="row g-3 align-items-end">
+      <div class="col-6 col-lg-3"><label for="a-ci">{% t "Check-in" %}</label><input id="a-ci" class="form-control" type="date" name="check_in" required></div>
+      <div class="col-6 col-lg-3"><label for="a-co">{% t "Check-out" %}</label><input id="a-co" class="form-control" type="date" name="check_out" required></div>
+      <div class="col-6 col-lg-2"><label for="a-g">{% t "Guests" %}</label><input id="a-g" class="form-control" type="number" name="guests" min="1" max="20" value="1"></div>
+      <div class="col-6 col-lg-2"><label for="a-rt">{% t "Room type" %}</label>
+        <select id="a-rt" class="form-select" name="room_type"><option value="">{% t "Any room type" %}</option>
+          {% for rt in all_room_types %}<option value="{{ rt.pk }}">{% loc rt "name" %}</option>{% endfor %}
+        </select></div>
+      <div class="col-12 col-lg-2 d-grid"><button class="btn btn-gold" type="submit">{% t "Check availability" %}</button></div>
+    </div>
+  </form>
+</div>
+
+<section class="section">
+  <div class="container">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <h2 class="section-title">{% t "Our story" %}</h2><hr class="gold-rule">
+        {% loc site "about" as about %}<p class="lead-muted">{{ about|truncatewords:60 }}</p>
+        <a class="btn btn-navy" href="{% url 'core:about' %}">{% t "About Us" %}</a>
+      </div>
+      <div class="col-lg-6">
+        <div class="room-img" style="aspect-ratio:16/10">{% if site.about_image %}<img src="{{ site.about_image.url }}" alt="{{ site.hotel_name }}" loading="lazy">{% else %}<i class="fa-solid fa-hotel"></i>{% endif %}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-gray">
+  <div class="container">
+    <h2 class="section-title">{% t "Our rooms" %}</h2><hr class="gold-rule">
+    <div class="row g-4">
+      {% for rt in room_types %}<div class="col-md-6 col-lg-4">{% include "public/_room_card.html" %}</div>
+      {% empty %}<div class="col-12"><div class="empty-note">{% t "No rooms have been published yet." %}</div></div>{% endfor %}
+    </div>
+    <div class="mt-4"><a href="{% url 'rooms:list' %}" class="btn btn-navy">{% t "See all rooms" %}</a></div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">{% t "What we offer" %}</h2><hr class="gold-rule">
+    <div class="row">
+      {% for s in services %}<div class="col-md-6"><div class="service-item"><i class="fa-solid {{ s.icon }} ico"></i><div><h3>{% loc s "name" %}</h3>{% loc s "description" as d %}<p>{{ d }}</p></div></div></div>
+      {% empty %}<div class="col-12"><div class="empty-note">{% t "Services coming soon." %}</div></div>{% endfor %}
+    </div>
+    <a href="{% url 'core:services' %}" class="btn btn-navy mt-3">{% t "See all services" %}</a>
+  </div>
+</section>
+
+{% if menu_items %}
+<section class="section section-navy">
+  <div class="container">
+    <h2 class="section-title">{% t "From our kitchen" %}</h2><hr class="gold-rule">
+    <div class="row g-4">
+      {% for item in menu_items %}<div class="col-md-6">
+        <div class="menu-line"><span class="name" style="color:#fff">{% loc item "name" %}</span><span class="dots"></span><span class="amount" style="color:var(--gold)">{% money item.price %}</span></div>
+      </div>{% endfor %}
+    </div>
+    <a href="{% url 'core:restaurant' %}" class="btn btn-outline-gold mt-3">{% t "See the full menu" %}</a>
+  </div>
+</section>
+{% endif %}
+
+{% if gallery %}
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">{% t "A look inside" %}</h2><hr class="gold-rule">
+    <div class="gallery-grid">{% for g in gallery %}<a href="{{ g.image.url }}" target="_blank" rel="noopener"><img src="{{ g.image.url }}" alt="{% loc g 'title' %}" loading="lazy"></a>{% endfor %}</div>
+    <a href="{% url 'core:gallery' %}" class="btn btn-navy mt-2">{% t "See the gallery" %}</a>
+  </div>
+</section>
+{% endif %}
+
+<section class="section section-navy text-center">
+  <div class="container">
+    <h2 class="section-title">{% t "Ready to stay with us?" %}</h2>
+    <p class="mb-4">{% t "Reserve your room online in a few minutes." %}</p>
+    <a href="{% url 'bookings:create' %}" class="btn btn-gold btn-lg">{% t "Book now" %}</a>
+  </div>
+</section>
+{% endblock %}

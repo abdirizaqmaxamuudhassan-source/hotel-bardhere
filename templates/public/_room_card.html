@@ -1,0 +1,21 @@
+{% load hb_tags %}
+<div class="room-card">
+  <div class="room-img">{% if rt.main_image %}<img src="{{ rt.main_image.url }}" alt="{% loc rt 'name' %}" loading="lazy">{% else %}<i class="fa-solid fa-bed"></i>{% endif %}</div>
+  <div class="room-body">
+    <h3>{% loc rt "name" %}</h3>
+    <div class="meta-row mb-2">
+      <span><i class="fa-solid fa-user-group"></i>{{ rt.capacity }} {% t "guests" %}</span>
+      {% if rt.bed_type %}<span><i class="fa-solid fa-bed"></i>{{ rt.bed_type }}</span>{% endif %}
+      {% if rt.size_sqm %}<span><i class="fa-solid fa-ruler-combined"></i>{{ rt.size_sqm }} m²</span>{% endif %}
+    </div>
+    {% loc rt "description" as desc %}<p class="text-secondary">{{ desc|truncatechars:120 }}</p>
+    {% if rt.free_count is not None %}
+      {% if rt.free_count > 0 %}<p><span class="avail-pill yes">{{ rt.free_count }} {% t "rooms available" %}</span></p>
+      {% else %}<p><span class="avail-pill no">{% t "Not available" %}</span></p>{% endif %}
+    {% endif %}
+    <div class="mt-auto d-flex justify-content-between align-items-end">
+      <div class="price"><small>{% t "From" %}</small> {% money rt.price_per_night %} <small>/ {% t "per night" %}</small></div>
+      <a class="btn btn-navy btn-sm" href="{{ rt.get_absolute_url }}{% if check_in and check_out %}?check_in={{ check_in|date:'Y-m-d' }}&check_out={{ check_out|date:'Y-m-d' }}{% endif %}">{% t "View details" %}</a>
+    </div>
+  </div>
+</div>
