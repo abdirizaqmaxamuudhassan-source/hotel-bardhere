@@ -21,9 +21,9 @@ python manage.py createsuperuser            # your owner account
 python manage.py runserver
 ```
 
-* Public website: http://127.0.0.1:8000/
-* Staff dashboard: http://127.0.0.1:8000/manage/   (log in with the owner account)
-* Technical Django admin (superusers only): http://127.0.0.1:8000/admin/
+* Public website: http://127.0.0.1:8001/
+* Staff dashboard: http://127.0.0.1:8001/manage/   (log in with the owner account)
+* Technical Django admin (superusers only): http://127.0.0.1:8001/admin/
 * Run the tests: `python manage.py test`
 
 `seed_demo --with-staff` prints random passwords once for `manager`, `reception` and `accounts`.
